@@ -1,11 +1,11 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
+	"id": "folgezettel-renaming",
+	"name": "Folgezettel Renaming",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Rename `1a1 Medicine` to `3a1 Medicine` and all children of `1a1` will be renamed like so `3a1a Cardiology`.",
+	"author": "Next Day Games",
+	"authorUrl": "oliverbarnum.com",
+	"fundingUrl": "",
 	"isDesktopOnly": false
 }
