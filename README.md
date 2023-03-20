@@ -1,6 +1,7 @@
+
 # Folgezettel Renaming Plugin
 
-The Folgezettel renaming plugin allows you easily rename the children files preceded by `[a-zA-Z0-9]+` ids while also keeping filenames afterwards such as `1 Medicine Note`. Any file you rename that has an indentifier at the beginning of its filename will rename any markdown children.
+The Folgezettel renaming plugin allows you easily rename the children files preceded by `[a-zA-Z0-9]+` ids while also keeping filenames such as `1 Medicine Note`. Any file you rename that has an indentifier at the beginning of its filename will rename any markdown children.
 
 Let's say you have the following files:
 
