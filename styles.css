@@ -6,3 +6,28 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.firstIndentFolgezettel { margin-left: 0px }
+.secondIndentFolgezettel { margin-left: 10px }
+.thirdIndentFolgezettel { margin-left: 20px }
+.fourthIndentFolgezettel { margin-left: 30px }
+.fifthIndentFolgezettel { margin-left: 40px }
+.sixthIndentFolgezettel { margin-left: 50px }
+.seventhIndentFolgezettel { margin-left: 60px }
+.eighthIndentFolgezettel { margin-left: 70px }
+.ninthIndentFolgezettel { margin-left: 80px }
+.tenthIndentFolgezettel { margin-left: 90px }
+.eleventhIndentFolgezettel { margin-left: 100px }
+.twelfthIndentFolgezettel { margin-left: 110px }
+.thirteenthIndentFolgezettel { margin-left: 120px }
+.fourteenthIndentFolgezettel { margin-left: 130px }
+.fifteenthIndentFolgezettel { margin-left: 140px }
+.sixteenthIndentFolgezettel { margin-left: 150px }
+.seventeenthIndentFolgezettel { margin-left: 160px }
+.eighteenthIndentFolgezettel { margin-left: 170px }
+.nineteenthIndentFolgezettel { margin-left: 180px }
+.twentiethIndentFolgezettel { margin-left: 190px }
+.twentyFirstIndentFolgezettel { margin-left: 200px }
+.twentySecondIndentFolgezettel { margin-left: 210px }
+.twentyThirdIndentFolgezettel { margin-left: 220px }
+.twentyFourthIndentFolgezettel { margin-left: 230px }
+.twentyFifthIndentFolgezettel { margin-left: 240px }
