@@ -153,9 +153,9 @@ function getNewPathForFolgezettelWithMovedParent(oldParentFolge: string, newPare
 	const originalFolge = getFolgeIdentifier(originalBasename)
     const originalTokens = getFolgeTokens(originalFolge)
     const originalNumberTokens = convertFolgeTokensIntoNumbers(originalTokens)
-	console.log("Old Parent Tokens ", oldParentNumberTokens)
-	console.log("New Parent Tokens ", newParentNumberTokens)
-	console.log("Original Tokens ", originalNumberTokens)
+	// console.log("Old Parent Tokens ", oldParentNumberTokens)
+	// console.log("New Parent Tokens ", newParentNumberTokens)
+	// console.log("Original Tokens ", originalNumberTokens)
 
 	var newNumberTokens = new Array<number>
 
@@ -168,9 +168,9 @@ function getNewPathForFolgezettelWithMovedParent(oldParentFolge: string, newPare
     for(var o = oldParentNumberTokens.length; o < originalNumberTokens.length; o++) {
 		newNumberTokens.push(originalNumberTokens[o])
 	}
-	console.log("New Tokens ", newNumberTokens)
+	// console.log("New Tokens ", newNumberTokens)
 	var newFolge = convertFolgeNumbersIntoFolgeIdentifier(newNumberTokens)
     var newPath = file.path.replace(originalFolge, newFolge)
-    console.log(file.path, newPath)
+    // console.log(file.path, newPath)
 	return newPath
 }
