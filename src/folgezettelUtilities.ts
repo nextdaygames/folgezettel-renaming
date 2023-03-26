@@ -37,7 +37,69 @@ function getFolgeTokens(folgeIdentifier: string) {
 	if (currentToken.length > 0) {
 		tokens.push(currentToken)
 	}
+	// console.log(folgeIdentifier, "-->", tokens)
 	return tokens
+}
+
+function convertFolgeTokensIntoNumbers(folgeTokens: string[]) {
+	var numbers = new Array<number>
+	var isNumeric = true
+	for(var f = 0; f < folgeTokens.length; f++) {
+		if (isNumeric) {
+			numbers.push(parseInt(folgeTokens[f]))
+		} 
+		else {
+			numbers.push(convertAlphasToNumber(folgeTokens[f]))
+		}
+		isNumeric = !isNumeric
+	}
+	// console.log(folgeTokens, "-->", numbers)
+	return numbers
+}
+
+function convertAlphasToNumber(alphas: string) {
+	const aCharCode = 97
+
+	var total = 0
+	for(var a = 0; a < alphas.length; a++) {
+		var lowercaseAlphas = alphas[a].toLowerCase()
+		var charcode = lowercaseAlphas.charCodeAt(0)
+		var aMovedCharcode = charcode - aCharCode
+		total += aMovedCharcode
+	}
+	total += alphas.length - 1
+	return total
+}
+
+function convertNumberToAlphas(number: number) {
+	const aCharCode = 97
+	const zCharCode = 122
+	const distanceBetweenZAndA = (zCharCode - aCharCode+1)
+	
+	var alphas = ""
+	var totalZCharacters = Math.floor(number / distanceBetweenZAndA)
+	for(var c = 0; c < totalZCharacters; c++) {
+		alphas += "z"
+	}
+	var remainingChars = number % distanceBetweenZAndA
+
+	if (remainingChars >= 0) {
+		alphas += String.fromCharCode(remainingChars + aCharCode)
+	}
+	// console.log(number,"-->", alphas, remainingChars)
+
+	return alphas
+}
+
+function convertFolgeNumbersIntoFolgeIdentifier(folgeNumbers: number[]) {
+	var isNumeric = true
+	var identifier = ""
+	for (var n = 0; n < folgeNumbers.length; n++) {
+		identifier += isNumeric ? folgeNumbers[n].toString() : convertNumberToAlphas(folgeNumbers[n])
+		isNumeric = !isNumeric
+	}
+	// console.log(folgeNumbers, "-->", identifier)
+	return identifier
 }
 
 function isDirectParent(folgeTokens: string[], suspectedParentTokens: string[]) {
@@ -45,7 +107,7 @@ function isDirectParent(folgeTokens: string[], suspectedParentTokens: string[]) 
 		return false
 	}
 	for (var i = 0; i < suspectedParentTokens.length ; i++) {
-		if (folgeTokens[i] != suspectedParentTokens[i]) {
+		if (folgeTokens[i].toLowerCase() != suspectedParentTokens[i].toLowerCase()) {
 			return false
 		}
 	}
@@ -57,7 +119,7 @@ function isDirectChild(folgeTokens: string[], suspectedChild: string[]) {
 		return false
 	}
 	for (var i = 0; i < folgeTokens.length ; i++) {
-		if (folgeTokens[i] != suspectedChild[i]) {
+		if (folgeTokens[i].toLowerCase() != suspectedChild[i].toLowerCase()) {
 			return false
 		}
 	}
@@ -69,7 +131,7 @@ function isSibling(folgeTokens: string[], siblingTokens: string[]) {
 		return false
 	}
 	for (var i = 0; i < folgeTokens.length-1 ; i++) {
-		if (folgeTokens[i] != siblingTokens[i]) {
+		if (folgeTokens[i].toLowerCase() != siblingTokens[i].toLowerCase()) {
 			return false
 		}
 	}
@@ -85,66 +147,30 @@ function isSibling(folgeTokens: string[], siblingTokens: string[]) {
 function getNewPathForFolgezettelWithMovedParent(oldParentFolge: string, newParentFolge: string, file: TFile) {
     var originalBasename = file.basename
     const oldParentTokens = getFolgeTokens(oldParentFolge)
+	const oldParentNumberTokens = convertFolgeTokensIntoNumbers(oldParentTokens)
     const newParentTokens = getFolgeTokens(newParentFolge)
-    const originalTokens = getFolgeTokens(getFolgeIdentifier(originalBasename))
-	console.log("Old Parent Tokens ", oldParentTokens)
-	console.log("New Parent Tokens ", newParentTokens)
-	console.log("Old Tokens ", originalTokens)
+	const newParentNumberTokens = convertFolgeTokensIntoNumbers(newParentTokens)
+	const originalFolge = getFolgeIdentifier(originalBasename)
+    const originalTokens = getFolgeTokens(originalFolge)
+    const originalNumberTokens = convertFolgeTokensIntoNumbers(originalTokens)
+	console.log("Old Parent Tokens ", oldParentNumberTokens)
+	console.log("New Parent Tokens ", newParentNumberTokens)
+	console.log("Original Tokens ", originalNumberTokens)
 
-    const aCharCode = 97
-    const zCharCode = 122
-    const baseTen = 10
+	var newNumberTokens = new Array<number>
 
-    var isNumeric = true
-    var newFolge = newParentFolge
+	// console.log("Start reading at the " + (oldParentTokens.length+1) + " token " + originalTokens[oldParentTokens.length])
 
-	for (var i = 1; i < newParentTokens.length; i++){
-		isNumeric = !isNumeric
+    for(var i = 0; i < newParentNumberTokens.length; i++) {
+		newNumberTokens.push(newParentNumberTokens[i])
 	}
 
-	console.log("Start reading at the " + (oldParentTokens.length+1) + " token " + originalTokens[oldParentTokens.length])
-
-    for(var o = oldParentTokens.length; o < originalTokens.length; o++) {
-		var token = originalTokens[o]
-		console.log("Token " + o + " " + token)
-        var isNumber = /[0-9]*/.test(token)
-
-		if (o >= oldParentTokens.length) {
-			if (isNumeric && !isNumber) {
-				// Convert alpha to number
-				var totalNumber = 0
-				for (var c = 0 ; c < token.length ; c++) {
-					totalNumber = token[c].toLowerCase().charCodeAt(baseTen) - aCharCode
-				}
-				token = totalNumber.toString()
-				console.log("a->n " + originalTokens[o] + " -> " + token)
-			}
-			else if(!isNumeric && isNumber) {
-				// Convert number to alpha
-				var newToken = ""
-				var tokenNumber = parseInt(token)
-				var distanceBetweenZAndA = zCharCode - aCharCode
-				var totalZCharacters = tokenNumber % distanceBetweenZAndA
-				for(var c = 0; c < totalZCharacters; c++) {
-					newToken += "z"
-				}
-				var remainingChars = tokenNumber - (distanceBetweenZAndA * totalZCharacters)
-				if (remainingChars > 0) {
-					newToken += String.fromCharCode(remainingChars + aCharCode)
-				}
-				token = newToken
-				console.log("n->a " + originalTokens[o] + " -> " + token)
-			}
-		}
-		else {
-			console.log("o->w " + oldParentTokens[o] + " -> " + newParentTokens[o])
-			token = newParentTokens[o]
-		}
-		isNumeric = !isNumeric
-		newFolge += token
+    for(var o = oldParentNumberTokens.length; o < originalNumberTokens.length; o++) {
+		newNumberTokens.push(originalNumberTokens[o])
 	}
-
-    var newPath = file.path.replace(oldParentFolge, newParentFolge)
+	console.log("New Tokens ", newNumberTokens)
+	var newFolge = convertFolgeNumbersIntoFolgeIdentifier(newNumberTokens)
+    var newPath = file.path.replace(originalFolge, newFolge)
     console.log(file.path, newPath)
 	return newPath
 }
