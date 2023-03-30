@@ -1,4 +1,4 @@
-import { Notice, getLinkpath, MarkdownRenderer, ItemView, WorkspaceLeaf } from 'obsidian';
+import { Notice, TFile, getLinkpath, MarkdownRenderer, ItemView, WorkspaceLeaf } from 'obsidian';
 
 import folgezettelUtilities from './folgezettelUtilities';
 
@@ -21,6 +21,22 @@ export default class FolgezettelView extends ItemView {
 		this.renderFolgezettels(folgezettels)
 	}
 
+	findGrandParentPath(folgeTokens: string[], files: TFile[]) {
+		for (let g = 0; g < files.length; g++) {
+			const file = files[g]
+			var fileFolgeIdentifier = folgezettelUtilities.getFolgeIdentifier(file.basename)
+			if (!folgezettelUtilities.isFolgeFile(fileFolgeIdentifier)) {
+				continue
+			}
+			var possibleGrandParentFolgeTokens = folgezettelUtilities.getFolgeTokens(fileFolgeIdentifier)
+			if(!folgezettelUtilities.isDirectParent(folgeTokens, possibleGrandParentFolgeTokens)) {
+				continue
+			}
+			return file.path
+		}
+		return undefined
+	}
+
 	calculateFolgezettels() {
 		
 		var fileName = this.app.workspace.activeEditor?.file?.basename
@@ -35,6 +51,7 @@ export default class FolgezettelView extends ItemView {
 		var folgeTokens = folgezettelUtilities.getFolgeTokens(folgeIdentifier)
 
 		var files = this.app.vault.getMarkdownFiles();
+		var grandParent = undefined
 		var parent = undefined
 		let siblings: Array<string> = [];
 		let children: Array<string> = [];
@@ -47,8 +64,9 @@ export default class FolgezettelView extends ItemView {
 			var fileFolgeTokens = folgezettelUtilities.getFolgeTokens(fileFolgeIdentifier)
 
 			var linkText = file.path
-			if (folgezettelUtilities.isDirectParent(folgeTokens, fileFolgeTokens)) {
+			if (parent == undefined && folgezettelUtilities.isDirectParent(folgeTokens, fileFolgeTokens)) {
 				parent = linkText
+				grandParent = this.findGrandParentPath(fileFolgeTokens, files)
 			}
 			if (folgezettelUtilities.isSibling(folgeTokens, fileFolgeTokens)) {
 				siblings.push(linkText)
@@ -58,10 +76,11 @@ export default class FolgezettelView extends ItemView {
 			}
 		}
 		return {
+			grandParent: grandParent,
 			parent: parent,
 			siblings: siblings,
 			children: children,
-			source: source
+			source: source,
 		}
 	}
 
@@ -100,6 +119,11 @@ export default class FolgezettelView extends ItemView {
 		var fileName = this.app.workspace.activeEditor?.file?.basename
 		
 		container.createEl("h4", { text: fileName === undefined ? "Folgezettel" : fileName + " Folgezettel" });
+
+		if (folgezettels.grandParent !== undefined) {
+			container.createEl("h5", { text: "👨 Grand Parent: "});
+			container.appendChild(await this.createLink(container, folgezettels.source, folgezettels.grandParent))
+		}
 
 		if (folgezettels.parent !== undefined) {
 			container.createEl("h5", { text: "👨 Parent: "});

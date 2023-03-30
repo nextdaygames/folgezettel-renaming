@@ -2,7 +2,8 @@ import { TFile, Plugin } from 'obsidian';
 
 import folgezettelUtilities from "src/folgezettelUtilities"
 import FolgezettelView from 'src/folgezettelView';
-import indentClasses from 'src/indentClasses';
+import indentClasses from 'src/folgezettelIndentClasses';
+import colorClasses from 'src/folgezettelColorClasses';
 
 // Renaming a file to be a child of itself breaks the plugin
 
@@ -24,6 +25,19 @@ export default class FolgeRenamingPlugin extends Plugin {
 		  this.app.workspace.getLeavesOfType(FolgezettelView.folgezettelViewType)[0]
 		);
 	  }
+
+	async fixFileFolge(file:Element) {
+
+	}
+
+	async fixNumbering() {
+		const fileExplorer = document.querySelector('.nav-folder-children');
+		if (fileExplorer == null) {
+			return
+		}
+		const files = fileExplorer.querySelectorAll('.nav-file');
+		files.forEach(this.fixFileFolge);
+	}
 
 	updateFoglezettelsView() {
 		this.app.workspace.getLeavesOfType(FolgezettelView.folgezettelViewType).forEach((leaf) => {
@@ -49,9 +63,11 @@ export default class FolgeRenamingPlugin extends Plugin {
 		}
 		var folgeTokens = folgezettelUtilities.getFolgeTokens(fileFolgeIdentifier)
 		
+		const classIndex = indentClasses[folgeTokens.length] != undefined ? folgeTokens.length : folgeTokens.length - 1
+		titleDiv.removeClasses(colorClasses)
+		titleDiv.addClass(colorClasses[classIndex])
 		file.removeClasses(indentClasses)
-		var className = indentClasses[indentClasses[folgeTokens.length] != undefined ? folgeTokens.length : folgeTokens.length - 1]
-		file.addClass(className)
+		file.addClass(indentClasses[classIndex])
 	}
 
 	checkFoldersForIndent(element: Element) {
@@ -99,16 +115,20 @@ export default class FolgeRenamingPlugin extends Plugin {
 		if (!folgezettelUtilities.isFolgeFile(fileFolgeIdentifier)) {
 			return
 		}
-		if (!file.basename.startsWith(oldParentFolgeIdentifier)) {
+
+		var oldParentFolgeTokens = folgezettelUtilities.getFolgeTokens(oldParentFolgeIdentifier)
+		var fileFolgeTokens = folgezettelUtilities.getFolgeTokens(fileFolgeIdentifier)
+		if (!folgezettelUtilities.isDirectParent(fileFolgeTokens, oldParentFolgeTokens)) {
 			// This isn't a parent of mine
 			return
 		}
+
 		const newPath = folgezettelUtilities.getNewPathForFolgezettelWithMovedParent(oldParentFolgeIdentifier, newParentFolgeIdentifier, file)
 		this.app.fileManager.renameFile(file, newPath)
 	}
 
 	async onload() {
-
+		console.log("Loading Folgezettel Renaming Plugin")
 		this.registerView(
 			FolgezettelView.folgezettelViewType,
 			(leaf) => new FolgezettelView(leaf)
@@ -116,6 +136,10 @@ export default class FolgeRenamingPlugin extends Plugin {
 		
 		this.addRibbonIcon("dice", "Activate view", () => {
 			this.activateView();
+		});
+
+		this.addRibbonIcon("dice", "Fix Folge", () => {
+			this.fixNumbering();
 		});
 
 		this.registerEvent(
